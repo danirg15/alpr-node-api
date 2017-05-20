@@ -1,0 +1,23 @@
+stages:
+  - build
+  - test
+  - deploy
+  
+build:
+  stage: build
+  tags: ['']
+  only:
+    - master
+  script:
+    - npm install
+    
+deploy:
+  stage: deploy
+  tags: ['']
+  variables:
+    GIT_STRATEGY: none
+  only:
+    - master
+  script:
+     - forever stopall && forever start server.js
+    
