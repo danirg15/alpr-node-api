@@ -6,7 +6,8 @@
   "scripts": {
     "run": "forever start server.js",
     "start": "export NODE_ENV=dev && nodemon server",
-    "test": "export NODE_ENV=test && mocha --recursive --timeout 10000"
+    "test": "export NODE_ENV=test && mocha --recursive --timeout 10000",
+    "install-dep": "sudo apt-get update && sudo apt-get install -y openalpr openalpr-daemon openalpr-utils libopenalpr-dev"
   },
   "author": "dani",
   "license": "ISC",

@@ -20,9 +20,8 @@ self = module.exports = {
                     if (err) {
                         callback(err, null)
                     }else {
-                        //fs.unlink(filepath, () => {})
+                        fs.unlink(filepath, () => {})
                         let output = JSON.parse(stdout)
-                        console.log(output.results)
 
                         if(output.results.length === 0) {
                             callback(null, {
