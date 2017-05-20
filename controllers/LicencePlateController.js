@@ -16,14 +16,23 @@ self = module.exports = {
                 return
             }
             else {
-                exec(`alpr -c ${data.country_code} -j ${filepath}`, (err, stdout, stderr) => {
+                exec(`alpr -c ${data.region_code} -n 5 -j ${filepath}`, (err, stdout, stderr) => {
                     if (err) {
                         callback(err, null)
                     }else {
-                        fs.unlink(filepath, () => {})
-                        let result = JSON.parse(stdout)
-                        console.log(result)
-                        self.parse_results(result, data.country_code, callback)
+                        //fs.unlink(filepath, () => {})
+                        let output = JSON.parse(stdout)
+                        console.log(output.results)
+
+                        if(output.results.length === 0) {
+                            callback(null, {
+                                'status': 'ZERO_RESULTS',
+                                'result': {}
+                            })
+                        }else{
+                            self.parse_results(output.results[0], data.country_code, callback)
+                        }
+
                     }
                 })
             }
@@ -33,46 +42,38 @@ self = module.exports = {
 
 
     parse_results: (result, country_code, callback) => {
-        if(result.length === 0) {
-            callback(null, {
-                'status': 'ZERO_RESULTS',
-                'result': {}
-            })
+        let response = {
+            'status': 'OK',
+            'result': {
+                'licence_plate': '',
+                'confidence': result.confidence,
+                'processing_time_ms': result.processing_time_ms,
+                'country': {
+                    'code': country_code,
+                    'name': '',
+                },
+                'candidates': result.candidates
+            }
         }
-        else {
-            let response = {
-                'status': 'OK',
-                'result': {
-                    'licence_plate': '',
-                    'confidence': result.confidence,
-                    'processing_time_ms': result.processing_time_ms,
-                    'country': {
-                        'code': country_code,
-                        'name': '',
-                    },
-                    'candidates': result.candidates
+        
+        const country = licence_plate_patterns[country_code]
+        response.result.country.name = country.country
+
+        //Verify if found plate matches the pattern
+        //Otherwise look for the first candidate matching the pattern
+        if(self.findMatchingPattern(result.plate, country.patterns)) {
+            response.result.licence_plate = result.plate
+        } else {
+            for (var i = 0; i < result.candidates.length; i++) {
+                if(self.findMatchingPattern(result.candidates[i].plate, country.patterns)) {
+                    response.result.licence_plate = result.candidates[i].plate
+                    response.result.confidence = result.candidates[i].confidence
+                    break
                 }
             }
-            
-            const country = licence_plate_patterns[country_code]
-            response.result.country.name = country.country
+        }
 
-            //Verify if found plate matches the pattern
-            //Otherwise look for the first candidate matching the pattern
-            if(self.findMatchingPattern(result.plate, country.patterns)) {
-                response.result.licence_plate = result.plate
-            } else {
-                for (var i = 0; i < result.candidates.length; i++) {
-                    if(self.findMatchingPattern(result.candidates[i].plate, country.patterns)) {
-                        response.result.licence_plate = result.candidates[i].plate
-                        response.result.confidence = result.candidates[i].confidence
-                        break
-                    }
-                }
-            }
-
-            callback(null, response)
-        }//else
+        callback(null, response)
     },
 
 
