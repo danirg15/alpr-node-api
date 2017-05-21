@@ -1,6 +1,3 @@
-const Guid      = require('guid')
-const base64Img = require('base64-img')
-const fs        = require('fs')
 const exec      = require('child_process').exec
 
 const licence_plate_patterns = require('../data/licence_plate_patterns')
@@ -9,33 +6,21 @@ const licence_plate_patterns = require('../data/licence_plate_patterns')
 self = module.exports = {
 
     identify: (data, callback) => {
-        const image_id = Guid.create()
-        base64Img.img('data:image/png;base64,'+data.image, './data/upload', image_id, (err, filepath) => {
+        exec(`alpr -c ${data.region_code} -n 5 -j ${data.image_path}`, (err, stdout, stderr) => {
             if (err) {
                 callback(err, null)
-                return
+            }else {
+                let output = JSON.parse(stdout)
+                if(output.results.length === 0) {
+                    callback(null, {
+                        'status': 'ZERO_RESULTS',
+                        'result': {}
+                    })
+                }else{
+                    self.parse_results(output.results[0], data.country_code, callback)
+                }
             }
-            else {
-                exec(`alpr -c ${data.region_code} -n 5 -j ${filepath}`, (err, stdout, stderr) => {
-                    if (err) {
-                        callback(err, null)
-                    }else {
-                        fs.unlink(filepath, () => {})
-                        let output = JSON.parse(stdout)
-
-                        if(output.results.length === 0) {
-                            callback(null, {
-                                'status': 'ZERO_RESULTS',
-                                'result': {}
-                            })
-                        }else{
-                            self.parse_results(output.results[0], data.country_code, callback)
-                        }
-
-                    }
-                })
-            }
-        }) 
+        })
         
     },  
 

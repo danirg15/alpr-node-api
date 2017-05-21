@@ -37,7 +37,7 @@ if(config.util.getEnv('NODE_ENV') !== 'test') {
 //		Routing
 //--------------------------------------------
 app.use('/api', require('./routes/plate.routes'))
- 
+
 //Validation errors parsing
 // app.use((err, req, res, next) => res.status(400).json(err))
 

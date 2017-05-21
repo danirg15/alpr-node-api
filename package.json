@@ -13,7 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "async": "^1.5.2",
-    "base64-img": "^1.0.3",
     "body-parser": "^1.14.2",
     "config": "^1.21.0",
     "cors": "^2.8.3",
@@ -21,7 +20,7 @@
     "express": "^4.13.4",
     "express-validation": "^1.0.0",
     "forever": "^0.15.3",
-    "guid": "0.0.12",
+    "formidable": "^1.1.1",
     "helmet": "^3.4.0",
     "joi": "^10.5.0",
     "jsonwebtoken": "^7.1.7",
