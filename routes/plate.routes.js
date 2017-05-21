@@ -44,7 +44,7 @@ router.post('/upload', function(req, res) {
 			LicencePlateController.identify(data, (err, results) => {
 				fs.unlink(files.image.path, () => {})
 				if (err) res.status(500).json(err)
-		        else res.status(200).send(JSON.stringify(results, null, 4))
+		        else res.status(200).json(results)
 			})
 		}		
 	})
